@@ -1,0 +1,5 @@
+name: AdvancedReport
+version: '${version}'
+main: me.retamrovec.advancedreport.AdvancedReport
+api-version: 1.19
+authors: [ RETAMROVEC ]
