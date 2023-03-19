@@ -1,0 +1,48 @@
+discord-bot:
+  enabled: false
+  token: ""
+  status: "Reports on your server"
+  activity: WATCHING
+  # there must be channel id (you need developer mode for this)
+  log-channel: ""
+  log-message:
+    title: "New report (%player_name%)"
+    color:
+      r: 88
+      g: 125
+      b: 255
+    description: "Player %player_name% was reported by %reporter_name%."
+    timestamp: true
+    thumbnail:
+      enabled: true
+      url: "https://crafatar.com/renders/head/%player_uuid%"
+    field-reason:
+      title: "Reason"
+      description: "%reason%"
+    field-reported:
+      title: "Reported by"
+      description: "%reporter_name%"
+messages:
+  player-only: "&cThis command is only for players!"
+  no-permissions: "&cYou are not authorised to use this!"
+  invalid-use: "&cUse report: &a/report (player) (reason)"
+  alert: "&aPlayer &b%reporter_name% &areported &c%player_name% &awith reason &c%reason%"
+  reported: "&aYou have reported &c%player_name% &awith reason &c%reason%"
+report-menu:
+  player-head:
+    display_name: "&aYou are reporting this guy"
+    lore:
+      - "&aName: &c%player_name%"
+      - "&aReason: &c%reason%"
+  yes-button:
+    display_name: "&aYes, I want to report!"
+    lore:
+      - "&aBy clicking on this,"
+      - "&ayou will report this player"
+      - "&aand you can't take anything back!"
+  no-button:
+    display_name: "&aNo, this was mistake!"
+    lore:
+      - "&aYou can cancel report"
+      - "&aand don't send anything,"
+      - "&aif this was a mistake."
