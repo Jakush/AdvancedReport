@@ -43,6 +43,8 @@ messages:
   player-result: "&aID: %report_id%&b: &a%reporter_name% &creported &a%player_name% &cwith reason &a%reason%"
   deleted-record: "&aReport with ID &c%report_id% &awas deleted!"
   no-result: "&cNo results were found to this value!"
+  report-yourself: "&cYou can't report yourself!"
+  invalid-player: "&cThis player wasn't on this server."
   help:
     - "&aAdvancedReport &b- &6Advanced, modern solution"
     - " "

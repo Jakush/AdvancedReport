@@ -42,13 +42,23 @@ public class ReportCommand implements CommandExecutor {
                     .addPlaceholder(ConfigReplace.Placeholder.COMMAND_ARGS, this.configOptions.getString("messages.command.args")))));
             return false;
         }
+        OfflinePlayer reported = Bukkit.getOfflinePlayer(args[0]);
+        if (reported.getUniqueId().equals(player.getUniqueId())) {
+            sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.report-yourself", new ConfigReplace()
+                    .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName()))));
+            return false;
+        }
+        if (!reported.hasPlayedBefore()) {
+            sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.invalid-player", new ConfigReplace()
+                    .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName()))));
+            return false;
+        }
         Builder invManager = Builder.getInstance("Report", 27, player);
         StringBuilder builder = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
             builder.append(args[i]).append(" ");
         }
         String reportReason = builder.toString();
-        OfflinePlayer reported = Bukkit.getOfflinePlayer(args[0]);
 
         // Yes Button
         ItemStack yes = new ItemStack(Material.LIME_WOOL);
