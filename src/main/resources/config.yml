@@ -22,12 +22,36 @@ discord-bot:
     field-reported:
       title: "Reported by"
       description: "%reporter_name%"
+db:
+  SQLite:
+    useLocal: true
+    database: reports
+    # if local, leave this as it is
+    host: "0.0.0.0"
+    port: 3306
+    user: "root"
+    password: ""
 messages:
   player-only: "&cThis command is only for players!"
   no-permissions: "&cYou are not authorised to use this!"
-  invalid-use: "&cUse report: &a/report (player) (reason)"
+  invalid-use: "&cUse command: &a/%command% %command_args%"
+  command:
+    args: "(player) (reason)"
   alert: "&aPlayer &b%reporter_name% &areported &c%player_name% &awith reason &c%reason%"
   reported: "&aYou have reported &c%player_name% &awith reason &c%reason%"
+  numberexception: "&cZadaný input není číslo!"
+  player-result: "&aID: %report_id%&b: &a%reporter_name% &creported &a%player_name% &cwith reason &a%reason%"
+  deleted-record: "&aReport with ID &c%report_id% &awas deleted!"
+  no-result: "&cNo results were found to this value!"
+  help:
+    - "&aAdvancedReport &b- &6Advanced, modern solution"
+    - " "
+    - "&a/adminreport help"
+    - "&a/adminreport id REPORT-ID"
+    - "&a/adminreport clear id REPORT-ID"
+    - "&a/adminreport player REPORT-NAME"
+    - " "
+    - "&6spigotmc.org"
 report-menu:
   player-head:
     display_name: "&aYou are reporting this guy"

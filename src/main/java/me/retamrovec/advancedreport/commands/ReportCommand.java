@@ -37,7 +37,9 @@ public class ReportCommand implements CommandExecutor {
             return false;
         }
         if (args.length < 2) {
-            sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.invalid-use")));
+            sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.invalid-use", new ConfigReplace()
+                    .addPlaceholder(ConfigReplace.Placeholder.COMMAND, "report")
+                    .addPlaceholder(ConfigReplace.Placeholder.COMMAND_ARGS, this.configOptions.getString("messages.command.args")))));
             return false;
         }
         Builder invManager = Builder.getInstance("Report", 27, player);

@@ -1,7 +1,10 @@
 package me.retamrovec.advancedreport;
 
+import me.retamrovec.advancedreport.commands.ReportAdminCommand;
 import me.retamrovec.advancedreport.commands.ReportCommand;
 import me.retamrovec.advancedreport.config.ConfigOptions;
+import me.retamrovec.advancedreport.database.Database;
+import me.retamrovec.advancedreport.database.SQLite;
 import me.retamrovec.advancedreport.discord.Bot;
 import me.retamrovec.advancedreport.listeners.InventoryListener;
 import net.dv8tion.jda.api.JDA;
@@ -20,6 +23,7 @@ import java.util.UUID;
 public final class AdvancedReport extends JavaPlugin {
 
     private Bot bot;
+    private Database db;
     private ConfigOptions configOptions;
     private HashMap<UUID, String> reportReasons;
     private HashMap<UUID, UUID> reporting;
@@ -35,22 +39,26 @@ public final class AdvancedReport extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new InventoryListener(this), this);
 
         Bukkit.getPluginCommand("report").setExecutor(new ReportCommand(this));
+        Bukkit.getPluginCommand("adminreport").setExecutor(new ReportAdminCommand(this));
+
+        this.db = new SQLite(this);
+        this.db.connect();
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        this.db.disconnect();
     }
 
     public void initialise() {
         reloadConfig();
-        if (!getConfig().getBoolean("discord-bot.enabled")) return;
-        String token = getConfig().getString("discord-bot.token") == null ? "" : getConfig().getString("discord-bot.token");
+        if (!this.configOptions.getBoolean("discord-bot.enabled")) return;
+        String token = this.configOptions.getString("discord-bot.token") == null ? "" : this.configOptions.getString("discord-bot.token");
         assert token != null;
         if (token.equals("")) return;
         JDABuilder bot = JDABuilder.createDefault(token);
         bot.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE);
-        Activity activity = Activity.of(Activity.ActivityType.valueOf(this.getConfigOptions().getString("discord-bot.activity")), this.getConfigOptions().getString("discord-bot.status"));
+        Activity activity = Activity.of(Activity.ActivityType.valueOf(this.configOptions.getString("discord-bot.activity")), this.getConfigOptions().getString("discord-bot.status"));
         bot.setActivity(activity);
         bot.setChunkingFilter(ChunkingFilter.NONE);
         bot.setLargeThreshold(50);
@@ -79,5 +87,9 @@ public final class AdvancedReport extends JavaPlugin {
 
     public HashMap<UUID, UUID> getReporting() {
         return reporting;
+    }
+
+    public Database getDatabase() {
+        return db;
     }
 }

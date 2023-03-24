@@ -3,6 +3,8 @@ package me.retamrovec.advancedreport.listeners;
 import me.retamrovec.advancedreport.AdvancedReport;
 import me.retamrovec.advancedreport.config.ConfigOptions;
 import me.retamrovec.advancedreport.config.ConfigReplace;
+import me.retamrovec.advancedreport.database.Database;
+import me.retamrovec.advancedreport.debug.DebugReport;
 import me.retamrovec.advancedreport.utils.Formatter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -16,6 +18,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
 public class InventoryListener implements Listener {
@@ -33,7 +38,7 @@ public class InventoryListener implements Listener {
             Player p = (Player) e.getWhoClicked();
             int slot = e.getSlot();
             if (slot == 11) {
-                String reportReason = this.reportClass.getReportReasons().getOrDefault(p.getUniqueId(), "REASON IS MISING");
+                String reportReason = this.reportClass.getReportReasons().getOrDefault(p.getUniqueId(), "REASON IS MISSING");
                 OfflinePlayer reported = Bukkit.getOfflinePlayer(this.reportClass.getReporting().get(p.getUniqueId()));
                 Bukkit.getOnlinePlayers().forEach(player -> {
                     if (player.hasPermission("advancedreport.receive")) {
@@ -78,8 +83,32 @@ public class InventoryListener implements Listener {
                                     .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
                                     .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
                                     .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())), true);
-                    this.reportClass.getBot().sendEmbed(this.configOptions.getString("discord-bot.log-channel"), handler.build());
+                    Bukkit.getScheduler().runTaskAsynchronously(reportClass, () ->
+                    this.reportClass.getBot().sendEmbed(this.configOptions.getString("discord-bot.log-channel"), handler.build()));
                 }
+                Database database = this.reportClass.getDatabase();
+                // database manipulation
+                Bukkit.getScheduler().runTaskAsynchronously(reportClass, () -> {
+                    int largestId = -1;
+                    try (PreparedStatement ps = database.prepareStatement("SELECT MAX(id) AS max_id FROM " + database.getTable() + ";")) {
+                        ResultSet rs = ps.executeQuery();
+                        while (rs.next()) {
+                            int id = rs.getInt("max_id");
+                            largestId = id + 1;
+                        }
+                    } catch (SQLException ex) {
+                        DebugReport.foundDatabase("Database couldn't finish task!", Thread.currentThread());
+                    }
+                    try (PreparedStatement ps = database.prepareStatement("INSERT INTO " + database.getTable() + " VALUES (?,?,?,?);")) {
+                        ps.setInt(1, largestId);
+                        ps.setString(2, reported.getName());
+                        ps.setString(3, p.getName());
+                        ps.setString(4, reportReason);
+                        ps.executeUpdate();
+                    } catch (SQLException ex) {
+                        DebugReport.foundDatabase("Database couldn't finish task!", Thread.currentThread());
+                    }
+                });
                 e.getInventory().close();
                 this.reportClass.getReportReasons().remove(p.getUniqueId());
                 this.reportClass.getReporting().remove(p.getUniqueId());

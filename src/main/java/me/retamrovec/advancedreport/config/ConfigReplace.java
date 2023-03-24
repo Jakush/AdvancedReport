@@ -30,6 +30,9 @@ public class ConfigReplace {
         PLAYER_NAME,
         PLAYER_UUID,
         REPORTER_UUID,
-        REPORTER_NAME
+        REPORTER_NAME,
+        REPORT_ID,
+        COMMAND,
+        COMMAND_ARGS
     }
 }
