@@ -40,14 +40,6 @@ public class InventoryListener implements Listener {
             if (slot == 11) {
                 String reportReason = this.reportClass.getReportReasons().getOrDefault(p.getUniqueId(), "REASON IS MISSING");
                 OfflinePlayer reported = Bukkit.getOfflinePlayer(this.reportClass.getReporting().get(p.getUniqueId()));
-                Bukkit.getOnlinePlayers().forEach(player -> {
-                    if (player.hasPermission("advancedreport.receive")) {
-                        player.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.alert", new ConfigReplace()
-                                .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
-                                .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                                .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason))));
-                    }
-                });
                 p.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.reported", new ConfigReplace()
                         .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
                         .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
@@ -99,11 +91,12 @@ public class InventoryListener implements Listener {
                     } catch (SQLException ex) {
                         DebugReport.foundDatabase("Database couldn't finish task!", Thread.currentThread());
                     }
-                    try (PreparedStatement ps = database.prepareStatement("INSERT INTO " + database.getTable() + " VALUES (?,?,?,?);")) {
+                    try (PreparedStatement ps = database.prepareStatement("INSERT INTO " + database.getTable() + " VALUES (?,?,?,?,?);")) {
                         ps.setInt(1, largestId);
                         ps.setString(2, reported.getName());
                         ps.setString(3, p.getName());
                         ps.setString(4, reportReason);
+                        ps.setLong(5, System.currentTimeMillis());
                         ps.executeUpdate();
                     } catch (SQLException ex) {
                         DebugReport.foundDatabase("Database couldn't finish task!", Thread.currentThread());

@@ -1,4 +1,4 @@
-package me.retamrovec.advancedreport.discord;
+package me.retamrovec.advancedreport.alerts;
 
 import me.retamrovec.advancedreport.debug.DebugReport;
 import net.dv8tion.jda.api.JDA;
@@ -6,10 +6,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
-public class Bot {
+public class DiscordBot {
 
     JDA jda;
-    public Bot(@NotNull JDA jda) {
+    public DiscordBot(@NotNull JDA jda) {
         this.jda = jda;
     }
 

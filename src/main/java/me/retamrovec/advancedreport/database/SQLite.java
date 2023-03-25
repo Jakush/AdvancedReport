@@ -18,7 +18,7 @@ public class SQLite extends Database{
     String USER;
     String PASSWORD;
     int PORT;
-    public SQLite(AdvancedReport reportClass){
+    public SQLite(AdvancedReport reportClass) {
         super(reportClass);
         DATABASE = plugin.getConfig().getString("db.SQLite.database", "reports");
         HOST = plugin.getConfig().getString("db.SQLite.host", "0.0.0.0");
@@ -31,7 +31,8 @@ public class SQLite extends Database{
             "`id` int NOT NULL," +
             "`reported` varchar(32) NOT NULL," +
             "`reporter` varchar(32) NOT NULL," +
-            "`reason` varchar(32) NOT NULL" +
+            "`reason` varchar(32) NOT NULL," +
+            "`timestamp` bigint NOT NULL" +
             ");";
 
     public boolean isConnected() {

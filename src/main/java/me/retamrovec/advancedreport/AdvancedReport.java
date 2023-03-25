@@ -1,11 +1,12 @@
 package me.retamrovec.advancedreport;
 
+import me.retamrovec.advancedreport.alerts.AlertTask;
 import me.retamrovec.advancedreport.commands.ReportAdminCommand;
 import me.retamrovec.advancedreport.commands.ReportCommand;
 import me.retamrovec.advancedreport.config.ConfigOptions;
 import me.retamrovec.advancedreport.database.Database;
 import me.retamrovec.advancedreport.database.SQLite;
-import me.retamrovec.advancedreport.discord.Bot;
+import me.retamrovec.advancedreport.alerts.DiscordBot;
 import me.retamrovec.advancedreport.listeners.InventoryListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -22,11 +23,12 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public final class AdvancedReport extends JavaPlugin {
 
-    private Bot bot;
+    private DiscordBot discordBot;
     private Database db;
     private ConfigOptions configOptions;
     private HashMap<UUID, String> reportReasons;
     private HashMap<UUID, UUID> reporting;
+    private AlertTask task;
 
     @Override
     public void onEnable() {
@@ -43,10 +45,14 @@ public final class AdvancedReport extends JavaPlugin {
 
         this.db = new SQLite(this);
         this.db.connect();
+
+        this.task = new AlertTask(this);
+        this.task.start();
     }
 
     @Override
     public void onDisable() {
+        this.task.kill();
         this.db.disconnect();
     }
 
@@ -64,7 +70,7 @@ public final class AdvancedReport extends JavaPlugin {
         bot.setLargeThreshold(50);
         bot.setStatus(OnlineStatus.ONLINE);
         JDA jda = bot.build();
-        this.bot = new Bot(jda);
+        this.discordBot = new DiscordBot(jda);
 
         try {
             jda.awaitReady();
@@ -73,8 +79,8 @@ public final class AdvancedReport extends JavaPlugin {
         }
     }
 
-    public Bot getBot() {
-        return bot;
+    public DiscordBot getBot() {
+        return discordBot;
     }
 
     public ConfigOptions getConfigOptions() {

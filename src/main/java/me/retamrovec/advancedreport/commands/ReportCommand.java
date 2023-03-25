@@ -18,13 +18,35 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 public class ReportCommand implements CommandExecutor {
     AdvancedReport reportClass;
+    Builder invManager;
     ConfigOptions configOptions;
     @Contract(pure = true)
     public ReportCommand(@NotNull AdvancedReport reportClass) {
         this.reportClass = reportClass;
         this.configOptions = this.reportClass.getConfigOptions();
+
+        this.invManager = Builder.getInstance("Report", 27, null);
+        // Yes Button
+        ItemStack yes = new ItemStack(Material.LIME_WOOL);
+        ItemMeta yesMeta = yes.getItemMeta();
+        yesMeta.displayName(Formatter.chatColors(this.configOptions.getString("report-menu.yes-button.display_name")));
+        yesMeta.lore(this.configOptions.getComponentList("report-menu.yes-button.lore", null));
+        yes.setItemMeta(yesMeta);
+
+        // No Button
+        ItemStack no = new ItemStack(Material.RED_WOOL);
+        ItemMeta noMeta = no.getItemMeta();
+        noMeta.displayName(Formatter.chatColors(this.configOptions.getString("report-menu.no-button.display_name")));
+        noMeta.lore(this.configOptions.getComponentList("report-menu.no-button.lore", null));
+        no.setItemMeta(noMeta);
+
+        invManager.addItem(11, yes);
+        invManager.addItem(15, no);
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -53,26 +75,7 @@ public class ReportCommand implements CommandExecutor {
                     .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName()))));
             return false;
         }
-        Builder invManager = Builder.getInstance("Report", 27, player);
-        StringBuilder builder = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            builder.append(args[i]).append(" ");
-        }
-        String reportReason = builder.toString();
-
-        // Yes Button
-        ItemStack yes = new ItemStack(Material.LIME_WOOL);
-        ItemMeta yesMeta = yes.getItemMeta();
-        yesMeta.displayName(Formatter.chatColors(this.configOptions.getString("report-menu.yes-button.display_name")));
-        yesMeta.lore(this.configOptions.getComponentList("report-menu.yes-button.lore", null));
-        yes.setItemMeta(yesMeta);
-
-        // No Button
-        ItemStack no = new ItemStack(Material.RED_WOOL);
-        ItemMeta noMeta = no.getItemMeta();
-        noMeta.displayName(Formatter.chatColors(this.configOptions.getString("report-menu.no-button.display_name")));
-        noMeta.lore(this.configOptions.getComponentList("report-menu.no-button.lore", null));
-        no.setItemMeta(noMeta);
+        String builder = IntStream.range(1, args.length).mapToObj(i -> args[i] + " ").collect(Collectors.joining());
 
         // Player Head
         ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
@@ -81,15 +84,13 @@ public class ReportCommand implements CommandExecutor {
         skullMeta.displayName(Formatter.chatColors(this.configOptions.getString("report-menu.player-head.display_name", new ConfigReplace()
                 .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName()))));
         skullMeta.lore(this.configOptions.getComponentList("report-menu.player-head.lore", new ConfigReplace()
-                .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
+                .addPlaceholder(ConfigReplace.Placeholder.REASON, builder)
                 .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())));
         playerHead.setItemMeta(skullMeta);
 
         invManager.addItem(4, playerHead);
-        invManager.addItem(11, yes);
-        invManager.addItem(15, no);
         player.openInventory(invManager.getInventory());
-        this.reportClass.getReportReasons().put(player.getUniqueId(), reportReason);
+        this.reportClass.getReportReasons().put(player.getUniqueId(), builder);
         this.reportClass.getReporting().put(player.getUniqueId(), reported.getUniqueId());
         return false;
     }

@@ -6,7 +6,7 @@ plugins {
 
 var mainClass = 'AdvancedReport'
 group = 'me.retamrovec'
-version = '1.1-PRODUCTION'
+version = '1.2-PRODUCTION'
 application.mainClass = group + '.advancedreport.' + mainClass
 
 shadowJar {
