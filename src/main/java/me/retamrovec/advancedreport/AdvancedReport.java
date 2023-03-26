@@ -34,7 +34,7 @@ public final class AdvancedReport extends JavaPlugin {
     public void onEnable() {
         this.saveDefaultConfig();
         this.configOptions = new ConfigOptions(this);
-        this.initialise();
+        this.init();
         this.reportReasons = new HashMap<>();
         this.reporting = new HashMap<>();
 
@@ -56,7 +56,7 @@ public final class AdvancedReport extends JavaPlugin {
         this.db.disconnect();
     }
 
-    public void initialise() {
+    public void init() {
         reloadConfig();
         if (!this.configOptions.getBoolean("discord-bot.enabled")) return;
         String token = this.configOptions.getString("discord-bot.token") == null ? "" : this.configOptions.getString("discord-bot.token");

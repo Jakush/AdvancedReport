@@ -3,6 +3,8 @@ package me.retamrovec.advancedreport.commands;
 import me.retamrovec.advancedreport.AdvancedReport;
 import me.retamrovec.advancedreport.config.ConfigOptions;
 import me.retamrovec.advancedreport.config.ConfigReplace;
+import me.retamrovec.advancedreport.debug.DebugReport;
+import me.retamrovec.advancedreport.interfaces.Taskable;
 import me.retamrovec.advancedreport.inventories.Builder;
 import me.retamrovec.advancedreport.utils.Formatter;
 import org.bukkit.Bukkit;
@@ -18,10 +20,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ReportCommand implements CommandExecutor {
+public class ReportCommand implements CommandExecutor, Taskable {
     AdvancedReport reportClass;
     Builder invManager;
     ConfigOptions configOptions;
@@ -50,30 +53,45 @@ public class ReportCommand implements CommandExecutor {
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        Runnable body = () -> command(sender, args);
+        Valuable result = runTask(body);
+        boolean bool = (boolean) result.getKey();
+        if (!bool) {
+            Exception exception = (Exception) result.getValue();
+            String builder = Arrays.stream(args).map(arg -> arg + " ").collect(Collectors.joining());
+            if (args.length == 0) builder = "NO-ARGS";
+            DebugReport.foundIssue("When executing the command \"/" + command.getName() + " " + builder + "\" requested by the player " + sender.getName() + " ," +
+                    " an error occurred.", exception.getStackTrace());
+            sender.sendMessage(Formatter.chatColors("&cError occurred while executing command!"));
+        }
+        return false;
+    }
+
+    public void command(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.player-only")));
-            return false;
+            return;
         }
         if (!player.hasPermission("advancedreport.use")) {
             sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.no-permissions")));
-            return false;
+            return;
         }
         if (args.length < 2) {
             sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.invalid-use", new ConfigReplace()
                     .addPlaceholder(ConfigReplace.Placeholder.COMMAND, "report")
                     .addPlaceholder(ConfigReplace.Placeholder.COMMAND_ARGS, this.configOptions.getString("messages.command.args")))));
-            return false;
+            return;
         }
         OfflinePlayer reported = Bukkit.getOfflinePlayer(args[0]);
         if (reported.getUniqueId().equals(player.getUniqueId())) {
             sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.report-yourself", new ConfigReplace()
                     .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName()))));
-            return false;
+            return;
         }
         if (!reported.hasPlayedBefore()) {
             sender.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.invalid-player", new ConfigReplace()
                     .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName()))));
-            return false;
+            return;
         }
         String builder = IntStream.range(1, args.length).mapToObj(i -> args[i] + " ").collect(Collectors.joining());
 
@@ -92,6 +110,5 @@ public class ReportCommand implements CommandExecutor {
         player.openInventory(invManager.getInventory());
         this.reportClass.getReportReasons().put(player.getUniqueId(), builder);
         this.reportClass.getReporting().put(player.getUniqueId(), reported.getUniqueId());
-        return false;
     }
 }

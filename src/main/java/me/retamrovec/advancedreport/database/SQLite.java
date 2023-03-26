@@ -76,7 +76,7 @@ public class SQLite extends Database{
         if (isConnected()) {
             try (PreparedStatement ps = getConnection().prepareStatement(createTable)) {
                 ps.executeUpdate();
-            } catch (SQLException e) { DebugReport.foundMajor("Database couldn't finish task!", false, false, true); }
+            } catch (SQLException e) { DebugReport.foundIssue("Database couldn't finish task!", Thread.currentThread().getStackTrace()); }
         }
     }
 
@@ -86,7 +86,7 @@ public class SQLite extends Database{
                 connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
-                DebugReport.foundMajor("Database couldn't finish task!", false, false, true);
+                DebugReport.foundIssue("Database couldn't finish task!", Thread.currentThread().getStackTrace());
             }
         }
     }

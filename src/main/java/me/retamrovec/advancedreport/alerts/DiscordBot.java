@@ -16,7 +16,9 @@ public class DiscordBot {
     public void sendEmbed(String id, MessageEmbed message) {
         TextChannel channel = jda.getTextChannelById(id);
         if (channel == null) {
-            DebugReport.foundMajor("Channel " + id + " was not found! Sending report to discord was cancelled.", false, true, false);
+            DebugReport.foundIssue("Channel " + id + " was not found! Sending report to discord was cancelled.", new StackTraceElement[]{
+                    new StackTraceElement(getClass().getName(), "sendEmbed", "DiscordBot.java", 17)
+            });
             return;
         }
         channel.sendMessageEmbeds(message).queue();

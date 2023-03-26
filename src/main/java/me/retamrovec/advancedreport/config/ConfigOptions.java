@@ -4,7 +4,6 @@ import me.retamrovec.advancedreport.AdvancedReport;
 import me.retamrovec.advancedreport.debug.DebugReport;
 import me.retamrovec.advancedreport.utils.Formatter;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ public class ConfigOptions {
     public String getString(String path, ConfigReplace configReplace) {
         String str = this.reportClass.getConfig().getString(path);
         if (str == null) {
-            DebugReport.foundMajor("String in configuration with path " + path + " was not found!", true, false, false);
+            DebugReport.foundIssue("String in configuration with path " + path + " was not found!", Thread.currentThread().getStackTrace());
             return "String was not found in configuration with path: " + path;
         }
         if (configReplace != null) return configReplace.replace(str);
