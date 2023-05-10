@@ -11,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-public class SQLite extends Database{
+public class SQLite extends Database {
 
     String DATABASE;
     String HOST;
@@ -32,6 +32,7 @@ public class SQLite extends Database{
             "`reported` varchar(32) NOT NULL," +
             "`reporter` varchar(32) NOT NULL," +
             "`reason` varchar(32) NOT NULL," +
+            "`server` varchar(32) NOT NULL," +
             "`timestamp` bigint NOT NULL" +
             ");";
 

@@ -40,15 +40,18 @@ public class InventoryListener implements Listener {
             if (slot == 11) {
                 String reportReason = this.reportClass.getReportReasons().getOrDefault(p.getUniqueId(), "REASON IS MISSING");
                 OfflinePlayer reported = Bukkit.getOfflinePlayer(this.reportClass.getReporting().get(p.getUniqueId()));
+                String serverName = configOptions.getString("server-name");
                 p.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.reported", new ConfigReplace()
                         .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
                         .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                        .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason))));
+                        .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
+                        .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, serverName))));
                 if (this.reportClass.getBot() != null) {
                     EmbedBuilder handler = new EmbedBuilder();
                     handler.setTitle(this.configOptions.getString("discord-bot.log-message.title", new ConfigReplace()
                             .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                            .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())));
+                            .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
+                            .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, serverName)));
                     handler.setColor(new Color(
                             this.configOptions.getInt("discord-bot.log-message.color.r"),
                             this.configOptions.getInt("discord-bot.log-message.color.g"),
@@ -56,25 +59,29 @@ public class InventoryListener implements Listener {
                     handler.setDescription(this.configOptions.getString("discord-bot.log-message.description", new ConfigReplace()
                             .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
                             .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                            .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())));
+                            .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
+                            .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, serverName)));
                     if (this.configOptions.getBoolean("discord-bot.log-message.timestamp")) handler.setTimestamp(new Date().toInstant());
                     if (this.configOptions.getBoolean("discord-bot.log-message.thumbnail.enabled")) {
                         handler.setThumbnail(this.configOptions.getString("discord-bot.log-message.thumbnail.url", new ConfigReplace()
                                 .addPlaceholder(ConfigReplace.Placeholder.PLAYER_UUID, reported.getUniqueId().toString())
                                 .addPlaceholder(ConfigReplace.Placeholder.REPORTER_UUID, p.getUniqueId().toString())
                                 .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                                .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())));
+                                .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
+                                .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, serverName)));
                     }
                     handler.addField(this.configOptions.getString("discord-bot.log-message.field-reason.title"),
                             this.configOptions.getString("discord-bot.log-message.field-reason.description", new ConfigReplace()
                                     .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
                                     .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                                    .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())), true);
+                                    .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
+                                    .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, serverName)), true);
                     handler.addField(this.configOptions.getString("discord-bot.log-message.field-reported.title"),
                             this.configOptions.getString("discord-bot.log-message.field-reported.description", new ConfigReplace()
                                     .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
                                     .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, p.getName())
-                                    .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())), true);
+                                    .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported.getName())
+                                    .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, serverName)), true);
                     Bukkit.getScheduler().runTaskAsynchronously(reportClass, () ->
                     this.reportClass.getBot().sendEmbed(this.configOptions.getString("discord-bot.log-channel"), handler.build()));
                 }
@@ -91,12 +98,13 @@ public class InventoryListener implements Listener {
                     } catch (SQLException ex) {
                         DebugReport.foundDatabase("Database couldn't finish task!", Thread.currentThread());
                     }
-                    try (PreparedStatement ps = database.prepareStatement("INSERT INTO " + database.getTable() + " VALUES (?,?,?,?,?);")) {
+                    try (PreparedStatement ps = database.prepareStatement("INSERT INTO " + database.getTable() + " VALUES (?,?,?,?,?,?);")) {
                         ps.setInt(1, largestId);
                         ps.setString(2, reported.getName());
                         ps.setString(3, p.getName());
                         ps.setString(4, reportReason);
-                        ps.setLong(5, System.currentTimeMillis());
+                        ps.setString(5, configOptions.getString("server-name"));
+                        ps.setLong(6, System.currentTimeMillis());
                         ps.executeUpdate();
                     } catch (SQLException ex) {
                         DebugReport.foundDatabase("Database couldn't finish task!", Thread.currentThread());

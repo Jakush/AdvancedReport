@@ -33,6 +33,7 @@ public class ConfigReplace {
         REPORTER_NAME,
         REPORT_ID,
         COMMAND,
-        COMMAND_ARGS
+        COMMAND_ARGS,
+        SERVER_NAME
     }
 }

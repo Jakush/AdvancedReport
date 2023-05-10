@@ -1,6 +1,7 @@
 package me.retamrovec.advancedreport;
 
 import me.retamrovec.advancedreport.alerts.AlertTask;
+import me.retamrovec.advancedreport.commands.CommandManager;
 import me.retamrovec.advancedreport.commands.ReportAdminCommand;
 import me.retamrovec.advancedreport.commands.ReportCommand;
 import me.retamrovec.advancedreport.config.ConfigOptions;
@@ -29,6 +30,7 @@ public final class AdvancedReport extends JavaPlugin {
     private HashMap<UUID, String> reportReasons;
     private HashMap<UUID, UUID> reporting;
     private AlertTask task;
+    private Metrics metrics;
 
     @Override
     public void onEnable() {
@@ -40,20 +42,25 @@ public final class AdvancedReport extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new InventoryListener(this), this);
 
-        Bukkit.getPluginCommand("report").setExecutor(new ReportCommand(this));
-        Bukkit.getPluginCommand("adminreport").setExecutor(new ReportAdminCommand(this));
+        CommandManager.register("report", new ReportCommand(this));
+        CommandManager.register("adminreport", new ReportAdminCommand(this));
 
         this.db = new SQLite(this);
         this.db.connect();
 
         this.task = new AlertTask(this);
         this.task.start();
+
+        if (this.configOptions.getBoolean("bStats")) {
+            this.metrics = new Metrics(this, 18067);
+        }
     }
 
     @Override
     public void onDisable() {
         this.task.kill();
         this.db.disconnect();
+        this.metrics.shutdown();
     }
 
     public void init() {

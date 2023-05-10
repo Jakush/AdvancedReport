@@ -42,7 +42,8 @@ public class AlertTask {
                             player.sendMessage(Formatter.chatColors(this.configOptions.getString("messages.alert", new ConfigReplace()
                                     .addPlaceholder(ConfigReplace.Placeholder.PLAYER_NAME, reported)
                                     .addPlaceholder(ConfigReplace.Placeholder.REPORTER_NAME, reporter)
-                                    .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason))));
+                                    .addPlaceholder(ConfigReplace.Placeholder.REASON, reportReason)
+                                    .addPlaceholder(ConfigReplace.Placeholder.SERVER_NAME, configOptions.getString("server-name")))));
                         }
                     });
                 }
